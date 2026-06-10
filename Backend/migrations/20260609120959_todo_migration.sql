@@ -1,4 +1,4 @@
--- Add migration script here
+-- migrations/<timestamp>_create_todos_table.sql
 DROP TABLE IF EXISTS todos;
 
 CREATE TABLE todos (

@@ -12,7 +12,7 @@ use tracing_subscriber;
 #[derive(Serialize, Deserialize)]
 struct TodoItem {
     todo_id: i32,
-    todo_text: String,
+    todo_text: Option<String>, // <-- On change String en Option<String>
 }
 
 #[tokio::main]
@@ -50,7 +50,7 @@ async fn hello_world_route() -> &'static str {
 async fn get_todos(
     Extension(pool): Extension<Pool<Postgres>>)
     -> Result<Json<Vec<TodoItem>>, StatusCode> {
-    let todos = sqlx::query_as!(TodoItem, "SELECT todo_id, todo_text FROM todos")
+    let todos = sqlx::query_as!(TodoItem, r#"SELECT todo_id, todo_text as "todo_text!" FROM public.todos ORDER BY todo_text DESC"#)
         .fetch_all(&pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
