@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS todos;
 
 CREATE TABLE todos (
     todo_id SERIAL PRIMARY KEY,
-    todo_text TEXT
+    todo_text TEXT NOT NULL
 );
 
 INSERT INTO todos (todo_text) VALUES ('Acheter du pain');

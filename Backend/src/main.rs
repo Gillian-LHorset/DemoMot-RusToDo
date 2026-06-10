@@ -16,6 +16,11 @@ struct TodoItem {
     todo_text: String,
 }
 
+#[derive(Serialize, Deserialize)]
+struct CreateTodo {
+    todo_text: String,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
 
@@ -33,7 +38,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
     let app = Router::new()
         //.route("/", get(hello_world_route));
-        .route("/todos", get(get_todos))
+        .route("/todos", get(get_todos).post(create_todo))
         .route("/todos/{id}", get(get_todo))
         .layer(Extension(pool));
 
@@ -51,7 +56,7 @@ async fn hello_world_route() -> &'static str {
 async fn get_todos(
     Extension(pool): Extension<Pool<Postgres>>)
     -> Result<Json<Vec<TodoItem>>, StatusCode> {
-    let todos = sqlx::query_as!(TodoItem, r#"SELECT todo_id, todo_text as "todo_text!" FROM public.todos ORDER BY todo_text DESC"#)
+    let todos = sqlx::query_as!(TodoItem, r#"SELECT todo_id, todo_text as "todo_text!" FROM public.todos ORDER BY todo_text ASC"#)
         .fetch_all(&pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -71,6 +76,22 @@ async fn get_todo(
         .fetch_one(&pool)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    Ok(Json(todo))
+}
+
+async fn create_todo(
+    Extension(pool): Extension<Pool<Postgres>>,
+    Json(new_todo): Json<CreateTodo>,
+) -> Result<Json<TodoItem>, StatusCode> {
+    let todo = sqlx::query_as!(
+        TodoItem,
+        r#"INSERT INTO public.todos (todo_text) VALUES ($1) RETURNING todo_id, todo_text as "todo_text: String""#,
+        new_todo.todo_text
+    )
+        .fetch_one(&pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(Json(todo))
 }
