@@ -26,6 +26,11 @@ struct UpdateTodo {
     todo_text: String,
 }
 
+#[derive(Serialize)]
+struct Message {
+    message: String,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
 
@@ -44,7 +49,7 @@ async fn main() -> Result<(), sqlx::Error> {
     let app = Router::new()
         //.route("/", get(hello_world_route));
         .route("/todos", get(get_todos).post(create_todo))
-        .route("/todos/{id}", get(get_todo).put(update_todo))
+        .route("/todos/{id}", get(get_todo).put(update_todo).delete(delete_todo))
         .layer(Extension(pool));
 
     let listener = tokio::net::TcpListener::bind("localhost:5000").await.unwrap();
@@ -117,6 +122,22 @@ async fn update_todo(
 
     match todo {
         Ok(todo) => Ok(Json(todo)),
+        Err(_) => Err(StatusCode::NOT_FOUND),
+    }
+}
+
+async fn delete_todo(
+    Extension(pool): Extension<Pool<Postgres>>,
+    Path(todo_id): Path<i32>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let result = sqlx::query!("DELETE FROM todos WHERE todo_id = $1", todo_id)
+        .execute(&pool)
+        .await;
+
+    match result {
+        Ok(_) => Ok(Json(serde_json::json! ({
+            "message": "Todo deleted successfully"
+        }))),
         Err(_) => Err(StatusCode::NOT_FOUND),
     }
 }
