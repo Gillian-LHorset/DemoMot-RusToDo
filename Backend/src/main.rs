@@ -3,6 +3,7 @@ use axum::http::StatusCode;
 use dotenvy::dotenv;
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
+use axum::extract::Path;
 use sqlx::postgres::PgPoolOptions;
 
 use tracing::{info, Level};
@@ -12,7 +13,7 @@ use tracing_subscriber;
 #[derive(Serialize, Deserialize)]
 struct TodoItem {
     todo_id: i32,
-    todo_text: Option<String>, // <-- On change String en Option<String>
+    todo_text: String,
 }
 
 #[tokio::main]
@@ -31,9 +32,9 @@ async fn main() -> Result<(), sqlx::Error> {
     println!("Connected to the database!");
 
     let app = Router::new()
-        // `GET /` goes to `root`
         //.route("/", get(hello_world_route));
         .route("/todos", get(get_todos))
+        .route("/todos/{id}", get(get_todo))
         .layer(Extension(pool));
 
     let listener = tokio::net::TcpListener::bind("localhost:5000").await.unwrap();
@@ -56,4 +57,20 @@ async fn get_todos(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(Json(todos))
+}
+
+async fn get_todo(
+    Extension(pool): Extension<Pool<Postgres>>,
+    Path(id): Path<i32>,
+) -> Result<Json<TodoItem>, StatusCode> {
+    let todo = sqlx::query_as!(
+    TodoItem,
+    r#"SELECT todo_id, todo_text as "todo_text!" FROM public.todos WHERE todo_id = $1"#,
+    id
+)
+        .fetch_one(&pool)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    Ok(Json(todo))
 }
