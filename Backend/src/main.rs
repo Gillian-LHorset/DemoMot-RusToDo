@@ -21,6 +21,11 @@ struct CreateTodo {
     todo_text: String,
 }
 
+#[derive(Serialize, Deserialize)]
+struct UpdateTodo {
+    todo_text: String,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
 
@@ -39,7 +44,7 @@ async fn main() -> Result<(), sqlx::Error> {
     let app = Router::new()
         //.route("/", get(hello_world_route));
         .route("/todos", get(get_todos).post(create_todo))
-        .route("/todos/{id}", get(get_todo))
+        .route("/todos/{id}", get(get_todo).put(update_todo))
         .layer(Extension(pool));
 
     let listener = tokio::net::TcpListener::bind("localhost:5000").await.unwrap();
@@ -86,7 +91,7 @@ async fn create_todo(
 ) -> Result<Json<TodoItem>, StatusCode> {
     let todo = sqlx::query_as!(
         TodoItem,
-        r#"INSERT INTO public.todos (todo_text) VALUES ($1) RETURNING todo_id, todo_text as "todo_text: String""#,
+        r#"INSERT INTO public.todos (todo_text) VALUES ($1) RETURNING todo_id, todo_text"#,
         new_todo.todo_text
     )
         .fetch_one(&pool)
@@ -94,4 +99,24 @@ async fn create_todo(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(Json(todo))
+}
+
+async fn update_todo(
+    Extension(pool): Extension<Pool<Postgres>>,
+    Path(todo_id): Path<i32>,
+    Json(updated_todo): Json<UpdateTodo>,
+) -> Result<Json<TodoItem>, StatusCode> {
+    let todo = sqlx::query_as!(
+        TodoItem,
+        r#"UPDATE todos SET todo_text = $1 WHERE todo_id = $2 RETURNING todo_id, todo_text"#,
+        updated_todo.todo_text,
+        todo_id
+    )
+        .fetch_one(&pool)
+        .await;
+
+    match todo {
+        Ok(todo) => Ok(Json(todo)),
+        Err(_) => Err(StatusCode::NOT_FOUND),
+    }
 }
