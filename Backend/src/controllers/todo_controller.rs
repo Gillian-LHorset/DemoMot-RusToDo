@@ -1,14 +1,21 @@
 use axum::{Extension, Json};
 use axum::extract::Path;
 use axum::http::StatusCode;
+use serde_json::Number;
 use sqlx::{Pool, Postgres};
 
 use crate::models::todo_model::{TodoItem, CreateTodo, UpdateTodo};
 
 pub async fn index(
-    Extension(pool): Extension<Pool<Postgres>>)
+    Extension(pool): Extension<Pool<Postgres>>,
+    user_id: i32)
     -> Result<Json<Vec<TodoItem>>, StatusCode> {
-    let todos = sqlx::query_as!(TodoItem, r#"SELECT todo_id, todo_text as "todo_text!" FROM public.todos ORDER BY todo_text ASC"#)
+    let todos = sqlx::query_as!(TodoItem, r#"SELECT todo_id, todo_text as "todo_text!"
+                                                            FROM public.todos
+                                                            WHERE user_fk = $1
+                                                            ORDER BY todo_text ASC"#,
+        user_id)
+
         .fetch_all(&pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
