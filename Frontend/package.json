@@ -1,5 +1,5 @@
 {
-  "name": "rustodo-front",
+  "name": "demomot-rustodo-front",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "vue": "^3.5.32",
-    "axios": "^1.17.0"
+    "vue-router": "^5.0.4"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",
