@@ -5,7 +5,7 @@ use sqlx::{Pool, Postgres};
 
 use crate::models::todo_model::{TodoItem, CreateTodo, UpdateTodo};
 
-pub async fn get_todos(
+pub async fn index(
     Extension(pool): Extension<Pool<Postgres>>)
     -> Result<Json<Vec<TodoItem>>, StatusCode> {
     let todos = sqlx::query_as!(TodoItem, r#"SELECT todo_id, todo_text as "todo_text!" FROM public.todos ORDER BY todo_text ASC"#)
@@ -16,7 +16,7 @@ pub async fn get_todos(
     Ok(Json(todos))
 }
 
-pub async fn get_todo(
+pub async fn show(
     Extension(pool): Extension<Pool<Postgres>>,
     Path(todo_id): Path<i32>,
 ) -> Result<Json<TodoItem>, StatusCode> {
@@ -32,7 +32,7 @@ pub async fn get_todo(
     Ok(Json(todo))
 }
 
-pub async fn create_todo(
+pub async fn create(
     Extension(pool): Extension<Pool<Postgres>>,
     Json(new_todo): Json<CreateTodo>,
 ) -> Result<Json<TodoItem>, StatusCode> {
@@ -48,7 +48,7 @@ pub async fn create_todo(
     Ok(Json(todo))
 }
 
-pub async fn update_todo(
+pub async fn update(
     Extension(pool): Extension<Pool<Postgres>>,
     Path(todo_id): Path<i32>,
     Json(updated_todo): Json<UpdateTodo>,
@@ -68,7 +68,7 @@ pub async fn update_todo(
     }
 }
 
-pub async fn delete_todo(
+pub async fn destroy(
     Extension(pool): Extension<Pool<Postgres>>,
     Path(todo_id): Path<i32>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {

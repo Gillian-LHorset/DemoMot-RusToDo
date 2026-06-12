@@ -13,6 +13,10 @@ use controllers::*;
 
 mod models;
 
+// import routes
+mod routers;
+use routers::*;
+
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
 
@@ -30,10 +34,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
     let app = Router::new()
         .nest("/api", Router::new()
-            //.route("/", get(hello_world_route));
-            .route("/todos", get(todo_controller::get_todos).post(todo_controller::create_todo))
-            .route("/todo/{id}", get(todo_controller::get_todo).put(todo_controller::update_todo).delete(todo_controller::delete_todo))
-            .layer(Extension(pool))
+            .merge(todos_route::todo_route(pool.clone()))
         );
 
     let listener = tokio::net::TcpListener::bind("localhost:5000").await.unwrap();
