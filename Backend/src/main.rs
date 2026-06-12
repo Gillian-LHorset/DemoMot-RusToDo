@@ -47,10 +47,12 @@ async fn main() -> Result<(), sqlx::Error> {
     println!("Connected to the database!");
 
     let app = Router::new()
-        //.route("/", get(hello_world_route));
-        .route("/todos", get(get_todos).post(create_todo))
-        .route("/todos/{id}", get(get_todo).put(update_todo).delete(delete_todo))
-        .layer(Extension(pool));
+        .nest("/api", Router::new()
+            //.route("/", get(hello_world_route));
+            .route("/todos", get(get_todos).post(create_todo))
+            .route("/todos/{id}", get(get_todo).put(update_todo).delete(delete_todo))
+            .layer(Extension(pool))
+        );
 
     let listener = tokio::net::TcpListener::bind("localhost:5000").await.unwrap();
     info!("Server is running on http://localhost:5000");
