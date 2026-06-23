@@ -13,8 +13,8 @@ pub async fn index(
     let todos = sqlx::query_as!(TodoItem, r#"SELECT todo_id, todo_text
                                                             FROM public.t_todos
                                                             WHERE user_fk = $1
-                                                            ORDER BY todo_text ASC"#,
-        1)
+                                                            ORDER BY todo_id ASC"#,
+                                                            1)
 
         .fetch_all(&pool)
         .await
