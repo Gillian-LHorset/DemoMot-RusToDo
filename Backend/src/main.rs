@@ -1,7 +1,5 @@
-use axum::{routing::get, Extension, Router};
+use axum::{Router};
 use dotenvy::dotenv;
-use serde::{Deserialize, Serialize};
-use sqlx::{Postgres};
 use sqlx::postgres::PgPoolOptions;
 
 use tracing::{info, Level};
@@ -9,7 +7,7 @@ use tracing_subscriber;
 
 // import controllers
 mod controllers;
-use controllers::*;
+use controllers::todo_controller;
 
 mod models;
 
@@ -37,7 +35,7 @@ async fn main() -> Result<(), sqlx::Error> {
             .merge(todos_route::todo_route(pool.clone()))
         );
 
-    let listener = tokio::net::TcpListener::bind("localhost:5000").await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:5000").await.unwrap();
     info!("Server is running on http://localhost:5000");
     axum::serve(listener, app).await.unwrap();
 

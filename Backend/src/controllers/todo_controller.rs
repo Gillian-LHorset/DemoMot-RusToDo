@@ -1,20 +1,20 @@
 use axum::{Extension, Json};
 use axum::extract::Path;
 use axum::http::StatusCode;
-use serde_json::Number;
 use sqlx::{Pool, Postgres};
 
 use crate::models::todo_model::{TodoItem, CreateTodo, UpdateTodo};
 
 pub async fn index(
-    Extension(pool): Extension<Pool<Postgres>>,
-    user_id: i32)
+    Extension(pool): Extension<Pool<Postgres>> //,
+    //user_id: i32
+)
     -> Result<Json<Vec<TodoItem>>, StatusCode> {
-    let todos = sqlx::query_as!(TodoItem, r#"SELECT todo_id, todo_text as "todo_text!"
-                                                            FROM public.todos
+    let todos = sqlx::query_as!(TodoItem, r#"SELECT todo_id, todo_text
+                                                            FROM public.t_todos
                                                             WHERE user_fk = $1
                                                             ORDER BY todo_text ASC"#,
-        user_id)
+        1)
 
         .fetch_all(&pool)
         .await
@@ -29,7 +29,7 @@ pub async fn show(
 ) -> Result<Json<TodoItem>, StatusCode> {
     let todo = sqlx::query_as!(
     TodoItem,
-    r#"SELECT todo_id, todo_text as "todo_text!" FROM public.todos WHERE todo_id = $1"#,
+    r#"SELECT todo_id, todo_text as "todo_text!" FROM public.t_todos WHERE todo_id = $1"#,
     todo_id
 )
         .fetch_one(&pool)
@@ -45,13 +45,16 @@ pub async fn create(
 ) -> Result<Json<TodoItem>, StatusCode> {
     let todo = sqlx::query_as!(
         TodoItem,
-        r#"INSERT INTO public.todos (todo_text) VALUES ($1) RETURNING todo_id, todo_text"#,
-        new_todo.todo_text
+        r#"INSERT INTO public.t_todos (todo_text, user_fk) VALUES ($1, $2) RETURNING todo_id, todo_text"#,
+        new_todo.todo_text,
+        1
     )
         .fetch_one(&pool)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
+        .map_err(|e| {
+            eprintln!("Erreur SQLx : {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
     Ok(Json(todo))
 }
 
@@ -62,7 +65,7 @@ pub async fn update(
 ) -> Result<Json<TodoItem>, StatusCode> {
     let todo = sqlx::query_as!(
         TodoItem,
-        r#"UPDATE todos SET todo_text = $1 WHERE todo_id = $2 RETURNING todo_id, todo_text"#,
+        r#"UPDATE t_todos SET todo_text = $1 WHERE todo_id = $2 RETURNING todo_id, todo_text"#,
         updated_todo.todo_text,
         todo_id
     )
@@ -79,7 +82,7 @@ pub async fn destroy(
     Extension(pool): Extension<Pool<Postgres>>,
     Path(todo_id): Path<i32>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    let result = sqlx::query!("DELETE FROM todos WHERE todo_id = $1", todo_id)
+    let result = sqlx::query!("DELETE FROM t_todos WHERE todo_id = $1", todo_id)
         .execute(&pool)
         .await;
 
