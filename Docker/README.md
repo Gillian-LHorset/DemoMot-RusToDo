@@ -8,3 +8,9 @@ docker run --name rustodo-postgres-container \
     -p 5432:5432 \
     -d postgres
 ```
+
+Lancer le conteneur avec :
+
+```sh
+docker start rustodo-postgres-container
+```
