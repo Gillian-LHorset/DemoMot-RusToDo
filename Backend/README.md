@@ -20,15 +20,19 @@ OU
 
 Installer sous-système Debian  
 Update Debian  
-Installer rust dans ce système `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` (instal standar)
-Dans RustRover : Ajouter une configuration pour la compilation qui run avec `WSL - Debian`
-Executez les commandes `which rustc` et `which cargo`
-Ajouter l'executable rust et cargo dans les targets du profil RustRover
+Installer les outils de développement C++ avec la commande : `sudo apt update && sudo apt install -y build-essential pkg-config libssl-dev`  
+Installer rust dans ce système `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` (install standard)  
+Dans RustRover : Ajouter une configuration pour la compilation qui run avec `WSL - Debian`  
+Executez les commandes `which rustc` et `which cargo`  
+Ajouter les executables rust et cargo dans les targets du profil RustRover
 
-## Lancer les migrations
+## Lancer la base de données
+
+Ouvrez un terminal Debian dans l'environnement puis installer sqlx-cli avec cette commande :
+`cargo install sqlx-cli --no-default-features --features postgres`
 
 Commande pour créer les migrations :
 
 ```sh
-sqlx database run
+sqlx database reset
 ```

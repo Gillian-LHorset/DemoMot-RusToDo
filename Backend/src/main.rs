@@ -28,7 +28,7 @@ async fn main() -> Result<(), sqlx::Error> {
     let pool = PgPoolOptions::new().connect(&db_url).await?;
 
 
-    println!("Connected to the database!");
+    println!("Connected to the database");
 
     let app = Router::new()
         .nest("/api", Router::new()

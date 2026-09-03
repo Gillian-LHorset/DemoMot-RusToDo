@@ -11,7 +11,7 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: "/modify",
+      path: "/modify/:id",
       name: "modify",
       component: ModifyView,
     },

@@ -6,7 +6,7 @@
         <div class="todo_list">
           <p>{{ todo.todo_text }}</p>
 
-          <RouterLink :href="/modify/ + todo.todo_id">Modifier</RouterLink>
+          <RouterLink :to="`/modify/${todo.todo_id}`">Modifier</RouterLink>
           <button @click="deleteTodo(todo.todo_id)">supprimer</button>
         </div>
       </li>
