@@ -13,15 +13,17 @@ Copiez le fichier `.env.exemple` et changer l'url pour correspondre à votre con
 
 ## Installation des dépendances
 
+Installez les outils de développement C++ de Visual Studio
 Il suffit de bulid le programme avec `rust build`
 
 OU
 
 Installer sous-système Debian  
 Update Debian  
-Installer rust dans ce système `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+Installer rust dans ce système `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` (instal standar)
 Dans RustRover : Ajouter une configuration pour la compilation qui run avec `WSL - Debian`
-Ajouter l'executable rust dans les targets
+Executez les commandes `which rustc` et `which cargo`
+Ajouter l'executable rust et cargo dans les targets du profil RustRover
 
 ## Lancer les migrations
 
