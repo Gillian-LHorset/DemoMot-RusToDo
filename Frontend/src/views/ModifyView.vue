@@ -9,10 +9,25 @@
 </template>
 <script setup>
 import Service from "@/services/service.js";
-import { useRoute } from "vue-router";
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+const router = useRouter();
 
 const route = useRoute();
 const todoId = route.params.id;
+const newTodoText = ref("");
+
+const todo = ref();
+onMounted(async () => {
+  try {
+    const response = await Service.getTodo(todoId);
+    todo.value = response.data;
+    newTodoText.value = response.data.todo_text;
+  } catch (error) {
+    console.error("Erreur lors de la récupération :", error);
+  }
+});
 
 const patchTodo = async () => {
   const newTodo = {
@@ -21,6 +36,7 @@ const patchTodo = async () => {
 
   try {
     const response = await Service.modifyTodo(todoId, newTodo).then();
+    router.push("/");
   } catch (error) {
     console.log(error);
   }

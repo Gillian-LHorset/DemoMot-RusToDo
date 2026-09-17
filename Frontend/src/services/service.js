@@ -13,8 +13,11 @@ export default {
   getTodos() {
     return apiClient.get("/api/todos");
   },
-  addTodo(newBook) {
-    return apiClient.post("/api/todos", newBook);
+  getTodo(todoId) {
+    return apiClient.get(`/api/todo/${todoId}`);
+  },
+  addTodo(newTodo) {
+    return apiClient.post("/api/todos", newTodo);
   },
   deleteTodo(todoId) {
     return apiClient.delete(`/api/todo/${todoId}`);

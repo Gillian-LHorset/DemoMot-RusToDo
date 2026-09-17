@@ -15,8 +15,3 @@ pub struct CreateTodo {
 pub struct UpdateTodo {
     pub todo_text: String,
 }
-
-#[derive(Serialize)]
-pub struct Message {
-    pub message: String,
-}

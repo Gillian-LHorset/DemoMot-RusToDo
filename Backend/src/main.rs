@@ -7,7 +7,6 @@ use tracing_subscriber;
 
 // import controllers
 mod controllers;
-use controllers::todo_controller;
 
 mod models;
 
@@ -36,13 +35,9 @@ async fn main() -> Result<(), sqlx::Error> {
         );
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:5000").await.unwrap();
-    info!("Server is running on http://localhost:5000");
+    info!("Server is running on http://localhost:5000/api");
     axum::serve(listener, app).await.unwrap();
 
     Ok(())
-}
-
-async fn hello_world_route() -> &'static str {
-    return "Hello, world!"
 }
 
