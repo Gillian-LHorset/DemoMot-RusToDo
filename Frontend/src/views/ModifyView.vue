@@ -1,20 +1,48 @@
 <template>
-  <h1>hello</h1>
+  <h1>Modifier votre todo</h1>
 
   <form method="PATCH" @submit.prevent="patchTodo">
-    <label for="todo-text">text</label>
+    <label for="todo-text">Texte du todo</label>
     <input type="text" id="todo-text" v-model="newTodoText" />
     <button type="submit">Modifier le todo</button>
   </form>
 </template>
+
+<style lang="css" scoped>
+h1 {
+  display: flex;
+  justify-content: center;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+}
+form > input,
+form > button {
+  width: 100%;
+  border: 1px solid black;
+  box-sizing: border-box;
+}
+
+form > button {
+  cursor: pointer;
+}
+</style>
+
 <script setup>
 import Service from "@/services/service.js";
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
-
 const route = useRoute();
+
 const todoId = route.params.id;
 const newTodoText = ref("");
 
