@@ -2,12 +2,15 @@ use axum::{Extension, Json};
 use axum::extract::Path;
 use axum::http::StatusCode;
 use sqlx::{Pool, Postgres};
-
+use sqlx::types::JsonValue;
 use crate::models::todo_model::{TodoItem, CreateTodo, UpdateTodo};
+use crate::verificators::todo_verificator;
+use crate::verificators::todo_verificator::{verify_create, verify_update};
+use crate::models::message_model::ErrorResponse;
 
 pub async fn index(
-    Extension(pool): Extension<Pool<Postgres>> //,
-    //user_id: i32
+    Extension(pool): Extension<Pool<Postgres>> /*,
+    user_id: i32*/
 )
     -> Result<Json<Vec<TodoItem>>, StatusCode> {
     let todos = sqlx::query_as!(TodoItem, r#"SELECT todo_id, todo_text
@@ -42,39 +45,66 @@ pub async fn show(
 pub async fn create(
     Extension(pool): Extension<Pool<Postgres>>,
     Json(new_todo): Json<CreateTodo>,
-) -> Result<Json<TodoItem>, StatusCode> {
-    let todo = sqlx::query_as!(
-        TodoItem,
-        r#"INSERT INTO public.t_todos (todo_text, user_fk) VALUES ($1, $2) RETURNING todo_id, todo_text"#,
-        new_todo.todo_text,
-        1
-    )
-        .fetch_one(&pool)
-        .await
-        .map_err(|e| {
-            eprintln!("Erreur SQLx : {:?}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-    Ok(Json(todo))
+) -> Result<Json<TodoItem>, (StatusCode, Json<ErrorResponse>)> {
+    if verify_create(&new_todo) {
+        let todo = sqlx::query_as!(
+            TodoItem,
+            r#"INSERT INTO public.t_todos (todo_text, user_fk) VALUES ($1, $2) RETURNING todo_id, todo_text"#,
+            new_todo.todo_text,
+            1
+        )
+            .fetch_one(&pool)
+            .await
+            .map_err(|e| {
+                eprintln!("Erreur SQLx : {:?}", e);
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ErrorResponse {
+                        message: "Erreur lors de l'insertion en base de données".to_string(),
+                        success: false,
+                    }),
+                )
+            })?;
+        Ok(Json(todo))
+    } else {
+        let error_body = ErrorResponse {
+        message: "La structure du todo ne convient pas.".to_string(),
+        success: false,
+    };
+        Err((StatusCode::BAD_REQUEST, Json(error_body)))
+    }
 }
 
 pub async fn update(
     Extension(pool): Extension<Pool<Postgres>>,
     Path(todo_id): Path<i32>,
     Json(updated_todo): Json<UpdateTodo>,
-) -> Result<Json<TodoItem>, StatusCode> {
-    let todo = sqlx::query_as!(
-        TodoItem,
-        r#"UPDATE t_todos SET todo_text = $1 WHERE todo_id = $2 RETURNING todo_id, todo_text"#,
-        updated_todo.todo_text,
-        todo_id
-    )
-        .fetch_one(&pool)
-        .await;
-
-    match todo {
-        Ok(todo) => Ok(Json(todo)),
-        Err(_) => Err(StatusCode::NOT_FOUND),
+) -> Result<Json<TodoItem>, (StatusCode, Json<ErrorResponse>)> {
+    if verify_update(&updated_todo) {
+        let todo = sqlx::query_as!(
+            TodoItem,
+            r#"UPDATE t_todos SET todo_text = $1 WHERE todo_id = $2 RETURNING todo_id, todo_text"#,
+            updated_todo.todo_text,
+            todo_id
+        )
+            .fetch_one(&pool)
+            .await;
+        match todo {
+            Ok(todo) => Ok(Json(todo)),
+            Err(_) => Err((
+                StatusCode::NOT_FOUND,
+                Json(ErrorResponse {
+                    message: "Ressource introuvable".to_string(),
+                    success: false,
+                }),
+            )),
+        }
+    } else {
+        let error_body = ErrorResponse {
+            message: "La structure du todo ne convient pas.".to_string(),
+            success: false,
+        };
+        Err((StatusCode::BAD_REQUEST, Json(error_body)))
     }
 }
 

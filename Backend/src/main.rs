@@ -9,6 +9,7 @@ use tracing_subscriber;
 mod controllers;
 
 mod models;
+mod verificators;
 
 // import routes
 mod routers;
