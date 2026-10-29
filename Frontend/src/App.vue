@@ -3,36 +3,62 @@ import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
-  <header>
-    <nav>
-      <RouterLink to="/">home</RouterLink>
-      <RouterLink to="/">pas home</RouterLink>
-      <RouterLink to="/">enfaite home</RouterLink>
-    </nav>
-  </header>
+  <div class="app">
+    <header class="topbar">
+      <nav class="nav">
+        <RouterLink to="/" class="brand">
+          <img src="./assets/icons/logo.svg" alt="" class="logo" v-if="false" />
+          Rus<span class="accent">ToDo</span>
+        </RouterLink>
+      </nav>
+    </header>
 
-  <RouterView />
+    <main class="content">
+      <RouterView />
+    </main>
+  </div>
 </template>
 
-<style scoped>
-header {
-  position: sticky;
-  top: 0;
-  left: 0;
+<style>
+body {
   margin: 0;
-  padding: 30px;
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  background-color: lightgray;
+  background: #f3f4f6;
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
 }
 
-nav {
-  margin: 0;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  align-items: center;
-  gap: 50px;
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(255, 250, 235, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--beige);
+}
+
+.nav {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+}
+
+.brand {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  color: #111827;
+}
+
+.accent {
+  color: var(--orange-vif);
+}
+
+.brand.router-link-active {
+  color: #111827;
+}
+
+.content {
+  min-height: calc(100vh - 57px);
 }
 </style>

@@ -3,3 +3,19 @@ html body {
   margin: 0;
   padding: 0;
 }
+
+/* App.vue <style> */
+:root {
+  --orange-vif: #fa500f;
+  --orange: #ff8205;
+  --jaune: #ffd700;
+  --violet: #e17dd2;
+  --beige: #fff5bc;
+  --creme: #fffaeb;
+}
+
+body {
+  margin: 0;
+  background: var(--creme);
+  color: #3d2b1f;
+}
