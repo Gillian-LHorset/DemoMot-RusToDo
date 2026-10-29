@@ -1,6 +1,6 @@
 # DemoMot-RusToDo
 
-![alt text](Doc/RusToDo-Logo.png)
+![alt text](Images/RusToDo-Logo.png)
 
 ## Lancement du projet
 
