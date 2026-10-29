@@ -19,6 +19,8 @@ docker-compose up -d
 
 Remmontez dans l'archtecture et entrez dans le dossier `/DemoMot-RusToDo/Backend` puis suivez les indication du fichier `README.md`.
 
+Une fois le Backend en route rendez vous dans `/DemoMot-RusToDo/Frontend` et suivez les indications du README.
+
 ## Documentation
 
 La majorité du projet à été créer avec le guide suivant :  
