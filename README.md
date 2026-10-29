@@ -1,5 +1,7 @@
 # DemoMot-RusToDo
 
+![alt text](Doc/RusToDo-Logo.png)
+
 ## Lancement du projet
 
 Premièrement clonez le projet :
@@ -21,3 +23,8 @@ Remmontez dans l'archtecture et entrez dans le dossier `/DemoMot-RusToDo/Backend
 
 La majorité du projet à été créer avec le guide suivant :  
 https://www.rustfinity.com/blog/create-high-performance-rest-api-with-rust#add-the-.env-file-to-.gitignore
+
+## Galerie
+
+![Screen of the home page](Images/Home.png)
+![Screen of the modify page](Images/Modify.png)
